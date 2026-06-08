@@ -4,7 +4,7 @@ class Pet {
   final int? petId;
   final String nome;
   final String especie;
-  final int tutorId;
+  // final int tutorId;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -14,7 +14,7 @@ class Pet {
     this.petId,
     required this.nome,
     required this.especie,
-    required this.tutorId,
+    // required this.tutorId,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
@@ -27,7 +27,7 @@ class Pet {
       'petId': petId,
       'nome': nome,
       'especie': especie,
-      'tutorId': tutorId,
+      // 'tutorId': tutorId,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
       'deletedAt': deletedAt?.toIso8601String(),
@@ -40,7 +40,7 @@ class Pet {
       petId: map['petId'] as int?,
       nome: map['nome'] as String,
       especie: map['especie'] as String,
-      tutorId: map['tutorId'] as int,
+      // tutorId: map['tutorId'] as int,
       createdAt: DateTime.parse(map['createdAt'] as String),
       updatedAt: DateTime.parse(map['updatedAt'] as String),
       deletedAt: map['deletedAt'] != null
@@ -55,7 +55,7 @@ class Pet {
     int? petId,
     String? nome,
     String? especie,
-    int? tutorId,
+    // int? tutorId,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -65,7 +65,7 @@ class Pet {
       petId: petId ?? this.petId,
       nome: nome ?? this.nome,
       especie: especie ?? this.especie,
-      tutorId: tutorId ?? this.tutorId,
+      // tutorId: tutorId ?? this.tutorId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -73,4 +73,3 @@ class Pet {
     );
   }
 }
-

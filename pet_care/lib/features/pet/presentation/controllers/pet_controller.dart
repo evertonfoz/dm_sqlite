@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:pet_care/features/pet/data/repositories/sqlite_pet_repository.dart';
 import 'package:pet_care/features/pet/domain/models/pet.dart';
 import 'package:pet_care/features/pet/domain/repositories/pet_repository.dart';
@@ -7,25 +8,60 @@ import 'package:pet_care/features/pet/domain/repositories/pet_repository.dart';
 ///
 /// Como as Views gerenciam seu estado local via `setState`, este controlador expõe
 /// métodos diretos e limpos para execução das operações de CRUD.
-class PetController {
+class PetController extends ChangeNotifier {
   final PetRepository _repository;
 
   /// Inicializa o controlador com uma implementação de [PetRepository].
   ///
   /// Caso [repository] não seja fornecido, o controlador inicializa por padrão
   /// a implementação concreta baseada em SQLite [SqlitePetRepository].
-  PetController({PetRepository? repository})
-      : _repository = repository ?? SqlitePetRepository();
+  PetController({required PetRepository repository}) : _repository = repository;
+
+  final List<Pet> _pets = [];
+  bool _isLoading = false;
+  bool _isInserting = false;
+  bool _isUpdating = false;
+  bool _isDeleting = false;
+  String? _errorMessage;
+
+  List<Pet> get pets => _pets;
+  bool get isLoading => _isLoading;
+  bool get isInserting => _isInserting;
+  bool get isUpdating => _isUpdating;
+  bool get isDeleting => _isDeleting;
+  String? get errorMessage => _errorMessage;
 
   /// Solicita a inserção de um novo [Pet].
   /// Retorna o ID gerado pelo banco de dados para o novo registro.
-  Future<int> insertPet(Pet pet) {
-    return _repository.insertPet(pet);
+  Future<void> insertPet(Pet pet) async {
+    try {
+      _isInserting = true;
+      _errorMessage = null;
+      notifyListeners();
+      await _repository.insertPet(pet);
+    } catch (e) {
+      _errorMessage = 'Erro ao inserir pet: ${e.toString()}';
+    } finally {
+      _isInserting = false;
+      notifyListeners();
+    }
   }
 
   /// Recupera todos os registros de [Pet] persistidos localmente.
-  Future<List<Pet>> getAllPets() {
-    return _repository.getAllPets();
+  Future<void> getAllPets() async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      _pets.clear();
+      _pets.addAll(await _repository.getAllPets());
+    } catch (e) {
+      _errorMessage = 'Erro ao buscar pets: ${e.toString()}';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   /// Busca as informações de um [Pet] específico através do seu [id].
@@ -35,14 +71,33 @@ class PetController {
   }
 
   /// Atualiza os dados de um [Pet] existente.
-  /// Retorna a quantidade de registros que foram afetados pela atualização.
-  Future<int> updatePet(Pet pet) {
-    return _repository.updatePet(pet);
+  Future<void> updatePet(Pet pet) async {
+    try {
+      _isUpdating = true;
+      _errorMessage = null;
+      notifyListeners();
+      await _repository.updatePet(pet);
+    } catch (e) {
+      _errorMessage = 'Erro ao atualizar pet: ${e.toString()}';
+    } finally {
+      _isUpdating = false;
+      notifyListeners();
+    }
   }
 
   /// Remove o registro de um [Pet] do armazenamento por meio do seu [id].
   /// Retorna a quantidade de linhas deletadas no processo.
-  Future<int> deletePet(int id) {
-    return _repository.deletePet(id);
+  Future<void> deletePet(int id) async {
+    try {
+      _isDeleting = true;
+      _errorMessage = null;
+      notifyListeners();
+      await _repository.deletePet(id);
+    } catch (e) {
+      _errorMessage = 'Erro ao deletar pet: ${e.toString()}';
+    } finally {
+      _isDeleting = false;
+      notifyListeners();
+    }
   }
 }

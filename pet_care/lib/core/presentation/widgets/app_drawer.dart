@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pet_care/features/pet/presentation/pages/pet_list_page.dart';
-import 'package:pet_care/features/tutor/presentation/pages/tutor_list_page.dart';
 
 class AppDrawer extends StatelessWidget {
   final String activeRoute;
@@ -41,9 +40,9 @@ class AppDrawer extends StatelessWidget {
                 Navigator.of(context).pop();
                 return;
               }
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => const TutorListPage()),
-              );
+              // Navigator.of(context).pushReplacement(
+              //   MaterialPageRoute(builder: (context) => const TutorListPage()),
+              // );
             },
           ),
           const Spacer(),
@@ -127,7 +126,7 @@ class AppDrawer extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: isActive
-              ? const Color(0xFF0F766E).withOpacity(0.08)
+              ? const Color(0xFF0F766E).withValues(alpha: 0.08)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),

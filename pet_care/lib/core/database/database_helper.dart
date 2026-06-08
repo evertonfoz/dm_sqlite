@@ -83,11 +83,9 @@ class DatabaseHelper {
         petId INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
         especie TEXT NOT NULL,
-        tutorId INTEGER NOT NULL,
         createdAt TEXT NOT NULL,
         updatedAt TEXT NOT NULL,
-        deletedAt TEXT,
-        FOREIGN KEY (tutorId) REFERENCES tutors (tutorId)
+        deletedAt TEXT
       )
     ''');
   }
@@ -110,11 +108,17 @@ class DatabaseHelper {
 
       // 2. Adiciona as novas colunas à tabela pets
       final now = DateTime.now().toIso8601String();
-      
+
       // SQLite permite adicionar colunas via ALTER TABLE
-      await db.execute('ALTER TABLE pets ADD COLUMN tutorId INTEGER REFERENCES tutors(tutorId)');
-      await db.execute("ALTER TABLE pets ADD COLUMN createdAt TEXT NOT NULL DEFAULT '$now'");
-      await db.execute("ALTER TABLE pets ADD COLUMN updatedAt TEXT NOT NULL DEFAULT '$now'");
+      await db.execute(
+        'ALTER TABLE pets ADD COLUMN tutorId INTEGER REFERENCES tutors(tutorId)',
+      );
+      await db.execute(
+        "ALTER TABLE pets ADD COLUMN createdAt TEXT NOT NULL DEFAULT '$now'",
+      );
+      await db.execute(
+        "ALTER TABLE pets ADD COLUMN updatedAt TEXT NOT NULL DEFAULT '$now'",
+      );
       await db.execute('ALTER TABLE pets ADD COLUMN deletedAt TEXT');
     }
   }

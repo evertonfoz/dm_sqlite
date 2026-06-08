@@ -29,41 +29,51 @@ class SqflitePetLocalDataSource implements PetLocalDataSource {
   static const String _tableName = 'pets';
 
   SqflitePetLocalDataSource({DatabaseHelper? dbHelper})
-      : _dbHelper = dbHelper ?? DatabaseHelper.instance;
+    : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
   @override
   Future<int> insert(Pet pet) async {
     final db = await _dbHelper.database;
-    return await db.insert(_tableName, pet.toMap());
+    try {
+      return await db.insert(_tableName, pet.toMap());
+    } catch (e) {
+      throw Exception('Erro ao inserir pet: ${e.toString()}');
+    }
   }
 
   @override
   Future<List<Pet>> getAll() async {
     final db = await _dbHelper.database;
-    
+
     // Realiza um INNER JOIN para recuperar os dados do Tutor de forma eficiente em uma só consulta
     final result = await db.rawQuery('''
-      SELECT p.*, t.nome as tutorNome, t.email as tutorEmail, t.telefone as tutorTelefone,
-             t.createdAt as tutorCreatedAt, t.updatedAt as tutorUpdatedAt, t.deletedAt as tutorDeletedAt
+      SELECT p.*
       FROM $_tableName p
-      INNER JOIN tutors t ON p.tutorId = t.tutorId
-      WHERE p.deletedAt IS NULL AND t.deletedAt IS NULL
+      WHERE p.deletedAt IS NULL
       ORDER BY p.createdAt DESC
     ''');
+    // final result = await db.rawQuery('''
+    //   SELECT p.*, t.nome as tutorNome, t.email as tutorEmail, t.telefone as tutorTelefone,
+    //          t.createdAt as tutorCreatedAt, t.updatedAt as tutorUpdatedAt, t.deletedAt as tutorDeletedAt
+    //   FROM $_tableName p
+    //   INNER JOIN tutors t ON p.tutorId = t.tutorId
+    //   WHERE p.deletedAt IS NULL AND t.deletedAt IS NULL
+    //   ORDER BY p.createdAt DESC
+    // ''');
 
     return result.map((row) {
-      final tutor = Tutor(
-        tutorId: row['tutorId'] as int,
-        nome: row['tutorNome'] as String,
-        email: row['tutorEmail'] as String,
-        telefone: row['tutorTelefone'] as String,
-        createdAt: DateTime.parse(row['tutorCreatedAt'] as String),
-        updatedAt: DateTime.parse(row['tutorUpdatedAt'] as String),
-        deletedAt: row['tutorDeletedAt'] != null
-            ? DateTime.parse(row['tutorDeletedAt'] as String)
-            : null,
-      );
-      return Pet.fromMap(row, tutor: tutor);
+      // final tutor = Tutor(
+      //   tutorId: row['tutorId'] as int,
+      //   nome: row['tutorNome'] as String,
+      //   email: row['tutorEmail'] as String,
+      //   telefone: row['tutorTelefone'] as String,
+      //   createdAt: DateTime.parse(row['tutorCreatedAt'] as String),
+      //   updatedAt: DateTime.parse(row['tutorUpdatedAt'] as String),
+      //   deletedAt: row['tutorDeletedAt'] != null
+      //       ? DateTime.parse(row['tutorDeletedAt'] as String)
+      //       : null,
+      // );
+      return Pet.fromMap(row); //, tutor: tutor);
     }).toList();
   }
 
@@ -71,13 +81,16 @@ class SqflitePetLocalDataSource implements PetLocalDataSource {
   Future<Pet?> getById(int id) async {
     final db = await _dbHelper.database;
 
-    final result = await db.rawQuery('''
+    final result = await db.rawQuery(
+      '''
       SELECT p.*, t.nome as tutorNome, t.email as tutorEmail, t.telefone as tutorTelefone,
              t.createdAt as tutorCreatedAt, t.updatedAt as tutorUpdatedAt, t.deletedAt as tutorDeletedAt
       FROM $_tableName p
       INNER JOIN tutors t ON p.tutorId = t.tutorId
       WHERE p.petId = ? AND p.deletedAt IS NULL
-    ''', [id]);
+    ''',
+      [id],
+    );
 
     if (result.isNotEmpty) {
       final row = result.first;
@@ -112,7 +125,7 @@ class SqflitePetLocalDataSource implements PetLocalDataSource {
   Future<int> delete(int id) async {
     final db = await _dbHelper.database;
     final now = DateTime.now().toIso8601String();
-    
+
     // Soft Delete: Atualiza apenas o campo deletedAt em vez de deletar o registro fisicamente
     return await db.update(
       _tableName,
@@ -125,7 +138,7 @@ class SqflitePetLocalDataSource implements PetLocalDataSource {
   @override
   Future<List<Pet>> getByTutorId(int tutorId) async {
     final db = await _dbHelper.database;
-    
+
     final result = await db.query(
       _tableName,
       where: 'tutorId = ? AND deletedAt IS NULL',
@@ -136,4 +149,3 @@ class SqflitePetLocalDataSource implements PetLocalDataSource {
     return result.map((map) => Pet.fromMap(map)).toList();
   }
 }
-

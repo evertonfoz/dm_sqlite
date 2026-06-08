@@ -10,8 +10,10 @@ class SqlitePetRepository implements PetRepository {
 
   /// Permite injeção de dependência da fonte de dados para facilidade de mock em testes unitários.
   /// Caso omitido, utiliza a implementação padrão baseada no SQLite [SqflitePetLocalDataSource].
-  SqlitePetRepository({PetLocalDataSource? localDataSource})
-      : _localDataSource = localDataSource ?? SqflitePetLocalDataSource();
+  SqlitePetRepository(
+    SqflitePetLocalDataSource sqflitePetLocalDataSource, {
+    PetLocalDataSource? localDataSource,
+  }) : _localDataSource = localDataSource ?? SqflitePetLocalDataSource();
 
   @override
   Future<int> insertPet(Pet pet) {
