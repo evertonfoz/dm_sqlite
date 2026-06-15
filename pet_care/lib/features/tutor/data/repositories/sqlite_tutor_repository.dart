@@ -7,7 +7,7 @@ class SqliteTutorRepository implements TutorRepository {
   final TutorLocalDataSource _localDataSource;
 
   SqliteTutorRepository({TutorLocalDataSource? localDataSource})
-      : _localDataSource = localDataSource ?? SqfliteTutorLocalDataSource();
+    : _localDataSource = localDataSource ?? SqfliteTutorLocalDataSource();
 
   @override
   Future<int> insertTutor(Tutor tutor) {
@@ -15,8 +15,8 @@ class SqliteTutorRepository implements TutorRepository {
   }
 
   @override
-  Future<List<Tutor>> getAllTutors() {
-    return _localDataSource.getAll();
+  Future<List<Tutor>> getAllTutors({int limit = 20, int offset = 0}) {
+    return _localDataSource.getAll(limit: limit, offset: offset);
   }
 
   @override

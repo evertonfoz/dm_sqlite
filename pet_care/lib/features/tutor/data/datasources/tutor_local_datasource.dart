@@ -7,7 +7,7 @@ abstract class TutorLocalDataSource {
   Future<int> insert(Tutor tutor);
 
   /// Recupera todos os tutores ativos (não excluídos) no banco de dados local.
-  Future<List<Tutor>> getAll();
+  Future<List<Tutor>> getAll({int limit = 20, int offset = 0});
 
   /// Busca um tutor específico ativo por ID no banco de dados local.
   Future<Tutor?> getById(int id);
@@ -25,7 +25,7 @@ class SqfliteTutorLocalDataSource implements TutorLocalDataSource {
   static const String _tableName = 'tutors';
 
   SqfliteTutorLocalDataSource({DatabaseHelper? dbHelper})
-      : _dbHelper = dbHelper ?? DatabaseHelper.instance;
+    : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
   @override
   Future<int> insert(Tutor tutor) async {
@@ -34,14 +34,16 @@ class SqfliteTutorLocalDataSource implements TutorLocalDataSource {
   }
 
   @override
-  Future<List<Tutor>> getAll() async {
+  Future<List<Tutor>> getAll({int limit = 20, int offset = 0}) async {
     final db = await _dbHelper.database;
-    
+
     // Retorna apenas tutores onde deletedAt é nulo
     final result = await db.query(
       _tableName,
       where: 'deletedAt IS NULL',
-      orderBy: 'createdAt DESC',
+      orderBy: 'nome ASC',
+      limit: limit,
+      offset: offset,
     );
 
     return result.map((map) => Tutor.fromMap(map)).toList();
@@ -50,7 +52,7 @@ class SqfliteTutorLocalDataSource implements TutorLocalDataSource {
   @override
   Future<Tutor?> getById(int id) async {
     final db = await _dbHelper.database;
-    
+
     final result = await db.query(
       _tableName,
       where: 'tutorId = ? AND deletedAt IS NULL',
@@ -78,7 +80,7 @@ class SqfliteTutorLocalDataSource implements TutorLocalDataSource {
   Future<int> delete(int id) async {
     final db = await _dbHelper.database;
     final now = DateTime.now().toIso8601String();
-    
+
     // Soft Delete: Define deletedAt como a data/hora atual
     return await db.update(
       _tableName,

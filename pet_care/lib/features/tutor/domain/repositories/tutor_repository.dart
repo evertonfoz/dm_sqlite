@@ -6,7 +6,7 @@ abstract class TutorRepository {
   Future<int> insertTutor(Tutor tutor);
 
   /// Recupera todos os registros de [Tutor] ativos persistidos.
-  Future<List<Tutor>> getAllTutors();
+  Future<List<Tutor>> getAllTutors({int limit = 20, int offset = 0});
 
   /// Busca um [Tutor] ativo pelo seu identificador único [id]. Retorna null se não encontrar.
   Future<Tutor?> getTutorById(int id);

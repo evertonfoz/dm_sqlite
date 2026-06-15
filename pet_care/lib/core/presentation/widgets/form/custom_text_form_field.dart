@@ -25,6 +25,8 @@ class CustomTextFormField extends StatelessWidget {
       style: const TextStyle(color: Color(0xFF1E293B), fontSize: 16),
       textCapitalization: textCapitalization,
       keyboardType: keyboardType,
+      textInputAction: TextInputAction.next,
+
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: const TextStyle(color: Color(0xFF94A3B8)),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pet_care/features/pet/presentation/pages/pet_list_page.dart';
+import 'package:pet_care/features/tutor/presentation/pages/tutor_list_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,9 +28,10 @@ class MainApp extends StatelessWidget {
           foregroundColor: Color(0xFF1E293B),
           elevation: 0,
         ),
-        fontFamily: 'Inter', // Utiliza a fonte padrão com fallback do sistema operacional
+        fontFamily:
+            'Inter', // Utiliza a fonte padrão com fallback do sistema operacional
       ),
-      home: const PetListPage(),
+      home: const TutorListPage(),
     );
   }
 }

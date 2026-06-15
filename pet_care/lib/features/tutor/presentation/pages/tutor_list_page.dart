@@ -15,16 +15,30 @@ class TutorListPage extends StatefulWidget {
 
 class _TutorListPageState extends State<TutorListPage> {
   final TutorController _controller = TutorController();
+  late final ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
-    _controller.getAllTutors();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+    _controller.loadFirstPage();
+  }
+
+  void _onScroll() {
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    final delta = 200.0;
+
+    if (maxScroll > 0 && (maxScroll - currentScroll) <= delta) {
+      _controller.loadNextPage();
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -102,13 +116,50 @@ class _TutorListPageState extends State<TutorListPage> {
             return const EmptyTutorsToListView();
           }
 
+          // +1 garante que o slot do rodapé sempre existe no ListView,
+          // permitindo exibir tanto o spinner quanto a mensagem final.
+          final itemCount = _controller.tutors.length + 1;
+
           return RefreshIndicator(
             onRefresh: _controller.getAllTutors,
             color: const Color(0xFF0F766E),
             child: ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              itemCount: _controller.tutors.length,
+              itemCount: itemCount,
               itemBuilder: (context, index) {
+                if (index == _controller.tutors.length) {
+                  // Rodapé: spinner durante paginação
+                  if (_controller.isPaginating) {
+                    return const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color(0xFF0F766E),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  // Rodapé: mensagem ao atingir o fim da lista
+                  if (!_controller.hasMoreData) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                      child: Center(
+                        child: Text(
+                          'Todos os tutores foram carregados.',
+                          style: TextStyle(
+                            color: Color(0xFF64748B),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  // Rodapé: espaço invisível quando há mais dados mas não está paginando
+                  return const SizedBox(height: 80);
+                }
                 final tutor = _controller.tutors[index];
                 return TutorDismissibleItem(tutor, _controller);
               },
@@ -116,26 +167,52 @@ class _TutorListPageState extends State<TutorListPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final result = await Navigator.of(context).push<bool>(
-            MaterialPageRoute(builder: (context) => const TutorFormPage()),
-          );
-          if (result == true) {
-            _controller.getAllTutors();
-          }
-        },
-        backgroundColor: const Color(0xFFF97316),
-        elevation: 4,
-        label: const Text(
-          'Novo Tutor',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 15,
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // FloatingActionButton.extended(
+          //   heroTag: 'generate_tutors_fab',
+          //   onPressed: () async {
+          //     await _controller.loadNextPage();
+          //   },
+          //   backgroundColor: const Color(0xFF0F766E),
+          //   elevation: 4,
+          //   label: const Text(
+          //     'Carregar mais dados',
+          //     style: TextStyle(
+          //       color: Colors.white,
+          //       fontWeight: FontWeight.bold,
+          //       fontSize: 15,
+          //     ),
+          //   ),
+          //   icon: const Icon(Icons.shuffle_rounded, color: Colors.white),
+          // ),
+          // const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'new_tutor_fab',
+            onPressed: () async {
+              final result = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(builder: (context) => const TutorFormPage()),
+              );
+              if (result == true) {
+                _controller.getAllTutors();
+              }
+            },
+            backgroundColor: const Color(0xFFF97316),
+            elevation: 4,
+            label: const Text(
+              'Novo Tutor',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+              ),
+            ),
+            icon: const Icon(Icons.add_rounded, color: Colors.white),
           ),
-        ),
-        icon: const Icon(Icons.add_rounded, color: Colors.white),
+        ],
       ),
     );
   }

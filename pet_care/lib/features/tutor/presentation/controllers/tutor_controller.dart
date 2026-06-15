@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:pet_care/features/pet/data/datasources/pet_local_datasource.dart';
 import 'package:pet_care/features/pet/data/repositories/sqlite_pet_repository.dart';
@@ -14,21 +15,29 @@ class TutorController extends ChangeNotifier {
 
   TutorController({TutorRepository? repository, PetRepository? petRepository})
     : _repository = repository ?? SqliteTutorRepository(),
-      _petRepository = petRepository ?? SqlitePetRepository(SqflitePetLocalDataSource());
+      _petRepository =
+          petRepository ?? SqlitePetRepository(SqflitePetLocalDataSource());
 
   final List<Tutor> _tutors = [];
   bool _isLoading = false;
+  bool _isPaginating = false; // loading de paginação (próxima página)
   bool _isInserting = false;
   bool _isUpdating = false;
   bool _isDeleting = false;
   String? _errorMessage;
 
+  int _limit = 7;
+  int _offset = 0;
+  bool _hasMoreData = true;
+
   List<Tutor> get tutors => _tutors;
   bool get isLoading => _isLoading;
+  bool get isPaginating => _isPaginating;
   bool get isInserting => _isInserting;
   bool get isUpdating => _isUpdating;
   bool get isDeleting => _isDeleting;
   String? get errorMessage => _errorMessage;
+  bool get hasMoreData => _hasMoreData;
 
   /// Insere um novo tutor na base de dados.
   Future<void> insertTutor(Tutor tutor) async {
@@ -45,19 +54,64 @@ class TutorController extends ChangeNotifier {
     }
   }
 
-  /// Recupera todos os tutores cadastrados e ativos.
+  /// Recupera todos os tutores cadastrados e ativos (reseta a paginação).
   Future<void> getAllTutors() async {
     try {
       _isLoading = true;
+      _offset = 0;
+      _hasMoreData = true;
       _errorMessage = null;
       notifyListeners();
 
-      _tutors.clear();
-      _tutors.addAll(await _repository.getAllTutors());
+      final result = await _repository.getAllTutors(
+        limit: _limit,
+        offset: _offset,
+      );
+      _tutors
+        ..clear()
+        ..addAll(result);
+
+      if (result.length < _limit) {
+        _hasMoreData = false;
+      }
     } catch (e) {
       _errorMessage = 'Erro ao buscar tutores: ${e.toString()}';
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadFirstPage() async {
+    await getAllTutors();
+  }
+
+  Future<void> loadNextPage() async {
+    if (_isLoading || _isPaginating || !_hasMoreData) return;
+
+    _isPaginating = true;
+    notifyListeners(); // exibe o CircularProgressIndicator no rodapé
+
+    // O SQLite local é rápido demais (< 1ms) para que o Flutter consiga
+    // renderizar um frame com o spinner antes do estado já ser revertido.
+    // Aguardamos o próximo frame para garantir que o spinner seja exibido.
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    _offset += _limit;
+    try {
+      final newTutors = await _repository.getAllTutors(
+        limit: _limit,
+        offset: _offset,
+      );
+      if (newTutors.length < _limit) {
+        _hasMoreData = false;
+      }
+      _tutors.addAll(newTutors);
+    } catch (e) {
+      _errorMessage = 'Erro ao carregar mais tutores: ${e.toString()}';
+      _offset -= _limit; // desfaz o avanço do offset em caso de erro
+    } finally {
+      _isPaginating = false;
       notifyListeners();
     }
   }
@@ -101,5 +155,93 @@ class TutorController extends ChangeNotifier {
   Future<bool> hasActivePets(int tutorId) async {
     final petsList = await _petRepository.getPetsByTutorId(tutorId);
     return petsList.isNotEmpty;
+  }
+
+  /// Registra 100 tutores fictícios de forma aleatória e recarrega a lista.
+  Future<void> addFakeTutors() async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final random = math.Random();
+      final nomes = [
+        'Ana',
+        'Bruno',
+        'Carlos',
+        'Diana',
+        'Eduardo',
+        'Fernanda',
+        'Gabriel',
+        'Helena',
+        'Igor',
+        'Julia',
+        'Lucas',
+        'Mariana',
+        'Neto',
+        'Olivia',
+        'Pedro',
+        'Renata',
+        'Silvio',
+        'Teresa',
+        'Victor',
+        'Yasmin',
+      ];
+      final sobrenomes = [
+        'Silva',
+        'Santos',
+        'Oliveira',
+        'Souza',
+        'Rodrigues',
+        'Ferreira',
+        'Alves',
+        'Pereira',
+        'Lima',
+        'Gomes',
+        'Costa',
+        'Ribeiro',
+        'Martins',
+        'Carvalho',
+        'Almeida',
+        'Lopes',
+        'Soares',
+        'Dias',
+        'Moreira',
+        'Vieira',
+      ];
+      final provedores = [
+        'gmail.com',
+        'yahoo.com',
+        'outlook.com',
+        'hotmail.com',
+      ];
+
+      for (var i = 1; i <= 100; i++) {
+        final nome =
+            '${nomes[random.nextInt(nomes.length)]} ${sobrenomes[random.nextInt(sobrenomes.length)]}';
+        final email =
+            '${nome.toLowerCase().replaceAll(' ', '')}$i@${provedores[random.nextInt(provedores.length)]}';
+        final ddd = 11 + random.nextInt(89);
+        final tel1 = 90000 + random.nextInt(10000);
+        final tel2 = 1000 + random.nextInt(9000);
+        final telefone = '($ddd) $tel1-$tel2';
+
+        final tutor = Tutor(
+          nome: '$nome ($i)',
+          email: email,
+          telefone: telefone,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+        await _repository.insertTutor(tutor);
+      }
+
+      await getAllTutors();
+    } catch (e) {
+      _errorMessage = 'Erro ao cadastrar tutores fictícios: ${e.toString()}';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }
