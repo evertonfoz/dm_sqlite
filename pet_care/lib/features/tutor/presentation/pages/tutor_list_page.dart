@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pet_care/core/presentation/widgets/app_drawer.dart';
 import 'package:pet_care/features/pet/data/datasources/pet_local_datasource.dart';
 import 'package:pet_care/features/tutor/data/datasources/tutor_local_datasource.dart';
+import 'package:pet_care/features/tutor/data/datasources/tutor_remote_datasource.dart';
 import 'package:pet_care/features/tutor/data/repositories/tutor_repository.dart';
 import 'package:pet_care/features/tutor/presentation/controllers/tutor_controller.dart';
 import 'package:pet_care/features/tutor/presentation/pages/tutor_form_page.dart';
@@ -19,7 +20,7 @@ class TutorListPage extends StatefulWidget {
 
 class _TutorListPageState extends State<TutorListPage> {
   final TutorController _controller = TutorController(
-    TutorRepositoryImpl(SqfliteTutorLocalDataSourceImpl()),
+    TutorRepositoryImpl(SupabaseTutorRemoteDataSource()),
     SqlitePetRepository(SqflitePetLocalDataSource()),
   );
   late final ScrollController _scrollController;

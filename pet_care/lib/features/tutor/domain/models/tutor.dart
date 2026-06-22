@@ -65,4 +65,48 @@ class Tutor {
       deletedAt: deletedAt ?? this.deletedAt,
     );
   }
+
+  Map<String, dynamic> toSupabaseMap() {
+    return {
+      'nome': nome,
+      'email': email,
+      'telefone': telefone,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+      'deleted_at': deletedAt?.toIso8601String(),
+    };
+  }
+
+  Map<String, dynamic> toSupabaseMapWithId() {
+    return {
+      'tutor_id': tutorId,
+      'nome': nome,
+      'email': email,
+      'telefone': telefone,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+      'deleted_at': deletedAt?.toIso8601String(),
+    };
+  }
+
+  factory Tutor.fromSupabaseMap(Map<String, dynamic> map) {
+    return Tutor(
+      tutorId: _parseNullableInt(map['tutor_id']),
+      nome: map['nome'] as String,
+      email: map['email'] as String,
+      telefone: map['telefone'] as String,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+      deletedAt: map['deleted_at'] != null
+          ? DateTime.parse(map['deleted_at'] as String)
+          : null,
+    );
+  }
+
+  static int? _parseNullableInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value.toString());
+  }
 }
