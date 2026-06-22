@@ -1,30 +1,13 @@
 import 'package:pet_care/core/database/database_helper.dart';
+import 'package:pet_care/features/tutor/data/datasources/abstract_classes/tutor_datasource.dart';
 import 'package:pet_care/features/tutor/domain/models/tutor.dart';
 
-/// Contrato para a fonte de dados local da feature Tutor.
-abstract class TutorLocalDataSource {
-  /// Insere um novo tutor no banco de dados local.
-  Future<int> insert(Tutor tutor);
-
-  /// Recupera todos os tutores ativos (não excluídos) no banco de dados local.
-  Future<List<Tutor>> getAll({int limit = 20, int offset = 0});
-
-  /// Busca um tutor específico ativo por ID no banco de dados local.
-  Future<Tutor?> getById(int id);
-
-  /// Atualiza as informações de um tutor no banco de dados local.
-  Future<int> update(Tutor tutor);
-
-  /// Realiza a exclusão lógica (soft delete) de um tutor por ID.
-  Future<int> delete(int id);
-}
-
 /// Implementação da fonte de dados local utilizando o pacote `sqflite`.
-class SqfliteTutorLocalDataSource implements TutorLocalDataSource {
+class SqfliteTutorLocalDataSourceImpl implements ITutorDataSource {
   final DatabaseHelper _dbHelper;
   static const String _tableName = 'tutors';
 
-  SqfliteTutorLocalDataSource({DatabaseHelper? dbHelper})
+  SqfliteTutorLocalDataSourceImpl({DatabaseHelper? dbHelper})
     : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
   @override

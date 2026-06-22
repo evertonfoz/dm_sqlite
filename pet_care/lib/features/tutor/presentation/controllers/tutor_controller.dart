@@ -3,20 +3,17 @@ import 'package:flutter/foundation.dart';
 import 'package:pet_care/features/pet/data/datasources/pet_local_datasource.dart';
 import 'package:pet_care/features/pet/data/repositories/sqlite_pet_repository.dart';
 import 'package:pet_care/features/pet/domain/repositories/pet_repository.dart';
-import 'package:pet_care/features/tutor/data/repositories/sqlite_tutor_repository.dart';
+import 'package:pet_care/features/tutor/data/repositories/tutor_repository.dart';
 import 'package:pet_care/features/tutor/domain/models/tutor.dart';
 import 'package:pet_care/features/tutor/domain/repositories/tutor_repository.dart';
 
 /// Controlador responsável por gerenciar a comunicação entre a UI
 /// e a camada de repositórios para a entidade de Tutores.
 class TutorController extends ChangeNotifier {
-  final TutorRepository _repository;
+  final ITutorRepository _repository;
   final PetRepository _petRepository;
 
-  TutorController({TutorRepository? repository, PetRepository? petRepository})
-    : _repository = repository ?? SqliteTutorRepository(),
-      _petRepository =
-          petRepository ?? SqlitePetRepository(SqflitePetLocalDataSource());
+  TutorController(this._repository, this._petRepository);
 
   final List<Tutor> _tutors = [];
   bool _isLoading = false;

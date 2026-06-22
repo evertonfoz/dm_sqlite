@@ -8,12 +8,7 @@ import 'package:pet_care/features/pet/domain/repositories/pet_repository.dart';
 class SqlitePetRepository implements PetRepository {
   final PetLocalDataSource _localDataSource;
 
-  /// Permite injeção de dependência da fonte de dados para facilidade de mock em testes unitários.
-  /// Caso omitido, utiliza a implementação padrão baseada no SQLite [SqflitePetLocalDataSource].
-  SqlitePetRepository(
-    SqflitePetLocalDataSource sqflitePetLocalDataSource, {
-    PetLocalDataSource? localDataSource,
-  }) : _localDataSource = localDataSource ?? SqflitePetLocalDataSource();
+  SqlitePetRepository(this._localDataSource);
 
   @override
   Future<int> insertPet(Pet pet) {

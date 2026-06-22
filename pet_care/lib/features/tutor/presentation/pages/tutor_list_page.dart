@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:pet_care/core/presentation/widgets/app_drawer.dart';
+import 'package:pet_care/features/pet/data/datasources/pet_local_datasource.dart';
+import 'package:pet_care/features/tutor/data/datasources/tutor_local_datasource.dart';
+import 'package:pet_care/features/tutor/data/repositories/tutor_repository.dart';
 import 'package:pet_care/features/tutor/presentation/controllers/tutor_controller.dart';
 import 'package:pet_care/features/tutor/presentation/pages/tutor_form_page.dart';
 
+import '../../../pet/data/repositories/sqlite_pet_repository.dart';
 import '../widgets/list/empty_tutors.dart';
 import '../widgets/list/tutor_dismissible_item.dart';
 
@@ -14,7 +18,10 @@ class TutorListPage extends StatefulWidget {
 }
 
 class _TutorListPageState extends State<TutorListPage> {
-  final TutorController _controller = TutorController();
+  final TutorController _controller = TutorController(
+    TutorRepositoryImpl(SqfliteTutorLocalDataSourceImpl()),
+    SqlitePetRepository(SqflitePetLocalDataSource()),
+  );
   late final ScrollController _scrollController;
 
   @override
@@ -88,7 +95,7 @@ class _TutorListPageState extends State<TutorListPage> {
       body: ListenableBuilder(
         listenable: _controller,
         builder: (context, child) {
-          if (_controller.isLoading || _controller.isDeleting) {
+          if (_controller.isLoading) {
             return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -145,7 +152,10 @@ class _TutorListPageState extends State<TutorListPage> {
                   // Rodapé: mensagem ao atingir o fim da lista
                   if (!_controller.hasMoreData) {
                     return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 24,
+                        horizontal: 16,
+                      ),
                       child: Center(
                         child: Text(
                           'Todos os tutores foram carregados.',

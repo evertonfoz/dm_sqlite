@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pet_care/features/pet/data/datasources/pet_local_datasource.dart';
+import 'package:pet_care/features/pet/data/repositories/sqlite_pet_repository.dart';
+import 'package:pet_care/features/tutor/data/datasources/tutor_local_datasource.dart';
+import 'package:pet_care/features/tutor/data/repositories/tutor_repository.dart';
 import 'package:pet_care/features/tutor/domain/models/tutor.dart';
 import 'package:pet_care/features/tutor/presentation/controllers/tutor_controller.dart';
 
@@ -18,7 +22,10 @@ class TutorFormPage extends StatefulWidget {
 }
 
 class _TutorFormPageState extends State<TutorFormPage> {
-  final TutorController _controller = TutorController();
+  final TutorController _controller = TutorController(
+    TutorRepositoryImpl(SqfliteTutorLocalDataSourceImpl()),
+    SqlitePetRepository(SqflitePetLocalDataSource()),
+  );
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _nomeController;

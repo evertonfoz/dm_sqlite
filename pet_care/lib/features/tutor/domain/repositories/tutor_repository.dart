@@ -1,7 +1,7 @@
 import 'package:pet_care/features/tutor/domain/models/tutor.dart';
 
 /// Contrato que define as operações de repositório para o modelo de negócio [Tutor].
-abstract class TutorRepository {
+abstract class ITutorRepository {
   /// Insere um novo [Tutor] na base de dados. Retorna o ID gerado.
   Future<int> insertTutor(Tutor tutor);
 
