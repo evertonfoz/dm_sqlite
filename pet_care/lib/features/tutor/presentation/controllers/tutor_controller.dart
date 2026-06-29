@@ -1,10 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
-import 'package:pet_care/features/pet/data/datasources/pet_local_datasource.dart';
-import 'package:pet_care/features/pet/data/repositories/sqlite_pet_repository.dart';
 import 'package:pet_care/features/pet/domain/repositories/pet_repository.dart';
-import 'package:pet_care/features/tutor/data/repositories/tutor_repository.dart';
 import 'package:pet_care/features/tutor/domain/models/tutor.dart';
+import 'package:pet_care/features/tutor/domain/repositories/sync_tutor_repository.dart';
 import 'package:pet_care/features/tutor/domain/repositories/tutor_repository.dart';
 
 /// Controlador responsável por gerenciar a comunicação entre a UI
@@ -12,8 +10,9 @@ import 'package:pet_care/features/tutor/domain/repositories/tutor_repository.dar
 class TutorController extends ChangeNotifier {
   final ITutorRepository _repository;
   final PetRepository _petRepository;
+  final ISyncTutorRepository _syncRepository;
 
-  TutorController(this._repository, this._petRepository);
+  TutorController(this._repository, this._petRepository, this._syncRepository);
 
   final List<Tutor> _tutors = [];
   bool _isLoading = false;
@@ -21,6 +20,7 @@ class TutorController extends ChangeNotifier {
   bool _isInserting = false;
   bool _isUpdating = false;
   bool _isDeleting = false;
+  bool _isSyncing = false;
   String? _errorMessage;
 
   int _limit = 7;
@@ -33,6 +33,7 @@ class TutorController extends ChangeNotifier {
   bool get isInserting => _isInserting;
   bool get isUpdating => _isUpdating;
   bool get isDeleting => _isDeleting;
+  bool get isSyncing => _isSyncing;
   String? get errorMessage => _errorMessage;
   bool get hasMoreData => _hasMoreData;
 
@@ -47,6 +48,23 @@ class TutorController extends ChangeNotifier {
       _errorMessage = 'Erro ao inserir tutor: ${e.toString()}';
     } finally {
       _isInserting = false;
+      notifyListeners();
+    }
+  }
+
+  /// Sincroniza os tutores da base remota para a base local.
+  Future<void> syncData() async {
+    try {
+      _isSyncing = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _syncRepository.syncTutors();
+      await getAllTutors();
+    } catch (e) {
+      _errorMessage = 'Erro ao sincronizar tutores: ${e.toString()}';
+    } finally {
+      _isSyncing = false;
       notifyListeners();
     }
   }

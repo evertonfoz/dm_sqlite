@@ -6,6 +6,7 @@ import 'package:pet_care/features/tutor/data/datasources/tutor_remote_datasource
 import 'package:pet_care/features/tutor/data/repositories/tutor_repository.dart';
 import 'package:pet_care/features/tutor/presentation/controllers/tutor_controller.dart';
 import 'package:pet_care/features/tutor/presentation/pages/tutor_form_page.dart';
+import 'package:pet_care/features/tutor/data/repositories/sync_tutor_repository_impl.dart';
 
 import '../../../pet/data/repositories/sqlite_pet_repository.dart';
 import '../widgets/list/empty_tutors.dart';
@@ -22,6 +23,10 @@ class _TutorListPageState extends State<TutorListPage> {
   final TutorController _controller = TutorController(
     TutorRepositoryImpl(SupabaseTutorRemoteDataSource()),
     SqlitePetRepository(SqflitePetLocalDataSource()),
+    SyncTutorRepositoryImpl(
+      remoteDataSource: SupabaseTutorRemoteDataSource(),
+      localDataSource: SqfliteTutorLocalDataSourceImpl(),
+    ),
   );
   late final ScrollController _scrollController;
 
@@ -31,6 +36,10 @@ class _TutorListPageState extends State<TutorListPage> {
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
     _controller.loadFirstPage();
+    // Inicia a sincronização de forma silenciosa ou mostrando o ícone de load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.syncData();
+    });
   }
 
   void _onScroll() {
@@ -84,6 +93,31 @@ class _TutorListPageState extends State<TutorListPage> {
           child: Container(color: const Color(0xFFE2E8F0), height: 1),
         ),
         actions: [
+          ListenableBuilder(
+            listenable: _controller,
+            builder: (context, _) {
+              if (_controller.isSyncing) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0F766E)),
+                      ),
+                    ),
+                  ),
+                );
+              }
+              return IconButton(
+                onPressed: _controller.syncData,
+                icon: const Icon(Icons.sync_rounded, color: Color(0xFF0F766E)),
+                tooltip: 'Sincronizar',
+              );
+            },
+          ),
           IconButton(
             onPressed: _controller.getAllTutors,
             icon: const Icon(Icons.refresh_rounded, color: Color(0xFF0F766E)),

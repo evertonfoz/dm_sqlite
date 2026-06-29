@@ -5,6 +5,8 @@ import 'package:pet_care/features/tutor/data/datasources/tutor_remote_datasource
 import 'package:pet_care/features/tutor/data/repositories/tutor_repository.dart';
 import 'package:pet_care/features/tutor/domain/models/tutor.dart';
 import 'package:pet_care/features/tutor/presentation/controllers/tutor_controller.dart';
+import 'package:pet_care/features/tutor/data/repositories/sync_tutor_repository_impl.dart';
+import 'package:pet_care/features/tutor/data/datasources/tutor_local_datasource.dart';
 
 import '../../../../core/presentation/widgets/form/custom_text_form_field.dart';
 import '../../../../core/presentation/widgets/form/form_card_section.dart';
@@ -25,6 +27,10 @@ class _TutorFormPageState extends State<TutorFormPage> {
   final TutorController _controller = TutorController(
     TutorRepositoryImpl(SupabaseTutorRemoteDataSource()),
     SqlitePetRepository(SqflitePetLocalDataSource()),
+    SyncTutorRepositoryImpl(
+      remoteDataSource: SupabaseTutorRemoteDataSource(),
+      localDataSource: SqfliteTutorLocalDataSourceImpl(),
+    ),
   );
   final _formKey = GlobalKey<FormState>();
 
