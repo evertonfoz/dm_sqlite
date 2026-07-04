@@ -53,13 +53,27 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Conta criada com sucesso!'),
-            backgroundColor: Colors.green,
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: const Text('Conta Criada!'),
+            content: const Text(
+              'Sua conta foi cadastrada com sucesso.\n\n'
+              'Importante: Se o seu projeto no Supabase exigir confirmação de e-mail, verifique sua caixa de entrada (e pasta de spam) para ativar a conta antes de fazer o login.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Fecha o AlertDialog
+                  Navigator.pop(context); // Retorna para a tela anterior
+                },
+                child: const Text('Entendi'),
+              ),
+            ],
           ),
         );
-        Navigator.pop(context); // Retorna após sucesso
       }
     }
   }
