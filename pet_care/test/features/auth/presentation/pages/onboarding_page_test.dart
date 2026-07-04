@@ -19,8 +19,9 @@ void main() {
 
     // Assert
     expect(find.text('Pet Care'), findsOneWidget);
-    expect(find.text('Criar Conta'), findsOneWidget);
+    expect(find.text('Criar conta'), findsOneWidget);
     expect(find.text('Entrar'), findsOneWidget);
+    expect(find.text('Comece agora a organizar seus atendimentos.'), findsOneWidget);
     expect(find.byIcon(Icons.pets), findsOneWidget);
   });
 }
