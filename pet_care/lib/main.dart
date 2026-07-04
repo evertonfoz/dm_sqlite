@@ -18,12 +18,6 @@ void main() async {
 
   debugPrint('Supabase inicializado com sucesso.');
 
-  final response = await Supabase.instance.client
-      .from('tutors')
-      .select()
-      .limit(1);
-  debugPrint('Teste:  $response');
-
   runApp(const MainApp());
 }
 

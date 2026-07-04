@@ -1,6 +1,6 @@
 # Walkthrough: Fase 1 - Camadas de Domínio e Dados (0001)
 
-Esta fase consistiu na criação das abstrações de domínio e da implementação concreta de dados para conectar o aplicativo ao Supabase Auth.
+Esta fase consistiu na criação das abstrações de domínio, da implementação concreta de dados para conectar o aplicativo ao Supabase Auth, limpeza de códigos de teste antigos no arquivo principal e criação de testes automatizados.
 
 ---
 
@@ -18,21 +18,32 @@ Esta fase consistiu na criação das abstrações de domínio e da implementaç�
 ### Camada de Dados
 *   `[NEW]` [supabase_auth_repository.dart](file:///Users/evertoncoimbradearaujo/Documents/GitHub/dm_sqlite/pet_care/lib/features/auth/data/repositories/supabase_auth_repository.dart): Implementação do repositório conectando diretamente com a instância `SupabaseClient`. Ele utiliza o `Supabase.instance.client` por padrão, mas permite injeção externa para facilitar testes unitários.
 
+### Limpeza e Configurações
+*   `[MODIFY]` [main.dart](file:///Users/evertoncoimbradearaujo/Documents/GitHub/dm_sqlite/pet_care/lib/main.dart): Removidos os testes manuais e consultas temporárias à tabela `tutors` que estavam poluindo a inicialização do app.
+*   `[MODIFY]` [pubspec.yaml](file:///Users/evertoncoimbradearaujo/Documents/GitHub/dm_sqlite/pet_care/pubspec.yaml): Adicionada a dependência de testes `flutter_test`.
+
+### Testes Automatizados
+*   `[NEW]` [supabase_auth_repository_test.dart](file:///Users/evertoncoimbradearaujo/Documents/GitHub/dm_sqlite/pet_care/test/features/auth/data/repositories/supabase_auth_repository_test.dart): Testes unitários completos cobrindo todos os métodos do repositório de autenticação (`signUp`, `signIn`, `signOut`, `resetPassword`, `getCurrentUser`, `checkSession`), simulando a dependência do cliente do Supabase por meio de Fakes dinâmicos.
+
 ---
 
 ## Como Validar / Testar esta Etapa
 
-Como esta etapa envolve apenas as classes de repositório e infraestrutura (sem tela ou controlador integrados ainda), a validação nesta fase pode ser feita através de **testes unitários** ou escrevendo um script temporário na inicialização do app para testar a comunicação com o Supabase Auth.
+Como os testes de unidade foram implementados para validar o funcionamento lógico das integrações, você pode rodar os testes automatizados diretamente.
 
-### Opção 1: Escrever um teste unitário simples em `test/` (Recomendado)
-Você pode criar um arquivo de testes na pasta `test/features/auth/data/repositories/supabase_auth_repository_test.dart` (ou similar) mockando o `SupabaseClient` ou testando a integração direta com um banco de testes (se configurado).
+### Execução dos Testes Unitários
+No terminal, execute o comando abaixo a partir do diretório raiz do projeto (`pet_care`):
 
-### Opção 2: Teste rápido de integração no `main.dart`
-Se você quiser realizar um teste de "fumaça" (smoke test) rápido na inicialização do aplicativo:
-1. Abra o arquivo `lib/main.dart`.
-2. No método `main()`, logo após a inicialização do Supabase e do `runApp`, instancie o repositório e chame algum método:
-   ```dart
-   final authRepo = SupabaseAuthRepository();
-   print("Usuário atual: ${authRepo.getCurrentUser()}");
-   ```
-3. Execute o aplicativo e verifique no console de depuração se a chamada é executada sem falhas de compilação ou exceções não tratadas de inicialização do cliente.
+```bash
+flutter test test/features/auth/data/repositories/supabase_auth_repository_test.dart
+```
+
+**Resultado esperado:**
+O console deve indicar sucesso em todos os 7 testes executados:
+*   `signUp deve chamar auth.signUp no cliente do Supabase`
+*   `signIn deve chamar auth.signInWithPassword no cliente do Supabase`
+*   `signOut deve chamar auth.signOut no cliente do Supabase`
+*   `resetPassword deve chamar auth.resetPasswordForEmail no cliente do Supabase`
+*   `getCurrentUser deve retornar o usuário atual do Supabase`
+*   `checkSession deve retornar true se houver sessao ativa`
+*   `checkSession deve retornar false se nao houver sessao ativa`
