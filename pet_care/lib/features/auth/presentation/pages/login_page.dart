@@ -34,6 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _handleLogin() async {
+    FocusScope.of(context).unfocus();
     if (_formKey.currentState!.validate()) {
       await widget.authController.signIn(
         _emailController.text.trim(),

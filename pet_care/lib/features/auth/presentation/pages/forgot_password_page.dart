@@ -24,6 +24,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   void _handleResetPassword() async {
+    FocusScope.of(context).unfocus();
     if (_formKey.currentState!.validate()) {
       await widget.authController.resetPassword(
         _emailController.text.trim(),

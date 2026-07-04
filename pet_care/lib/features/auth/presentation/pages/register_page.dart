@@ -37,6 +37,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _handleRegister() async {
+    FocusScope.of(context).unfocus();
     if (_formKey.currentState!.validate()) {
       await widget.authController.signUp(
         _emailController.text.trim(),
