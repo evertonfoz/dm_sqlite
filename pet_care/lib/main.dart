@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:pet_care/features/pet/presentation/pages/pet_list_page.dart';
-import 'package:pet_care/features/tutor/presentation/pages/tutor_list_page.dart';
+import 'package:pet_care/features/auth/presentation/pages/auth_gate.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/supabase/supabase_config.dart';
@@ -17,12 +16,6 @@ void main() async {
   );
 
   debugPrint('Supabase inicializado com sucesso.');
-
-  final response = await Supabase.instance.client
-      .from('tutors')
-      .select()
-      .limit(1);
-  debugPrint('Teste:  $response');
 
   runApp(const MainApp());
 }
@@ -51,7 +44,7 @@ class MainApp extends StatelessWidget {
         fontFamily:
             'Inter', // Utiliza a fonte padrão com fallback do sistema operacional
       ),
-      home: const TutorListPage(),
+      home: const AuthGate(),
     );
   }
 }
