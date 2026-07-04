@@ -9,7 +9,7 @@ Este plano descreve as etapas para implementação do fluxo de autenticação (o
 | Fase | Descrição | Status |
 | --- | --- | --- |
 | 1 | Camadas de Domínio e Dados (AuthRepository & SupabaseAuthRepository) | ✅ Concluída |
-| 2 | Camada de Apresentação - Controlador (AuthController) | ⬜ Pendente |
+| 2 | Camada de Apresentação - Controlador (AuthController) | ✅ Concluída |
 | 3 | Camada de Apresentação - Telas Públicas (Onboarding, Login, Registro, Recuperação de Senha) | ⬜ Pendente |
 | 4 | Controle de Sessão e Fluxo de Roteamento (AuthGate) | ⬜ Pendente |
 | 5 | Testes de Integração e Validação de Fluxo Completo | ⬜ Pendente |
@@ -40,7 +40,7 @@ Esta fase define a abstração para autenticação e sua respectiva implementaç
 
 ---
 
-### Fase 2: Camada de Apresentação - Controlador
+### Fase 2: Camada de Apresentação - Controlador ✅ (Concluída)
 
 Esta fase gerencia os estados do fluxo de autenticação e expõe comandos para a interface de usuário.
 
