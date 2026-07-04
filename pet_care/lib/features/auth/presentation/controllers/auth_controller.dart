@@ -40,7 +40,14 @@ class AuthController extends ChangeNotifier {
       await _authRepository.signIn(email: email, password: password);
       _currentUser = _authRepository.getCurrentUser();
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      final errorString = e.toString();
+      if (errorString.contains('Email not confirmed')) {
+        _errorMessage = 'Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada para ativar sua conta.';
+      } else if (errorString.contains('Invalid login credentials')) {
+        _errorMessage = 'E-mail ou senha incorretos.';
+      } else {
+        _errorMessage = errorString.replaceAll('Exception: ', '');
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
