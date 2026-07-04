@@ -24,7 +24,9 @@ class _AuthGateState extends State<AuthGate> {
   void initState() {
     super.initState();
     _client = widget.supabaseClient ?? Supabase.instance.client;
-    _authController = AuthController(SupabaseAuthRepository(supabaseClient: _client));
+    _authController = AuthController(
+      repository: SupabaseAuthRepository(client: _client),
+    );
   }
 
   @override

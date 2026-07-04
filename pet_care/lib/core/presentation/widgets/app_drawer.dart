@@ -82,7 +82,7 @@ class AppDrawer extends StatelessWidget {
 
               if (confirm == true && context.mounted) {
                 Navigator.of(context).pop(); // Close drawer
-                final controller = authController ?? AuthController(SupabaseAuthRepository());
+                final controller = authController ?? AuthController();
                 await controller.signOut();
               }
             },

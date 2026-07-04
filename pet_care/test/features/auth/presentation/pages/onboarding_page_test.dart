@@ -4,12 +4,12 @@ import 'package:pet_care/features/auth/presentation/controllers/auth_controller.
 import 'package:pet_care/features/auth/presentation/pages/onboarding_page.dart';
 import 'package:pet_care/features/auth/domain/repositories/auth_repository.dart';
 
-class MockAuthRepository extends Fake implements IAuthRepository {}
+class MockAuthRepository extends Fake implements AuthRepository {}
 
 void main() {
   testWidgets('OnboardingPage renderiza elementos visuais corretamente', (WidgetTester tester) async {
     final mockRepo = MockAuthRepository();
-    final controller = AuthController(mockRepo);
+    final controller = AuthController(repository: mockRepo);
 
     await tester.pumpWidget(
       MaterialApp(

@@ -31,7 +31,7 @@ class _TutorListPageState extends State<TutorListPage> {
   @override
   void initState() {
     super.initState();
-    _authController = widget.authController ?? AuthController(SupabaseAuthRepository());
+    _authController = widget.authController ?? AuthController();
     _controller = widget.controller ?? TutorController(
       TutorRepositoryImpl(SupabaseTutorRemoteDataSource()),
       SqlitePetRepository(SqflitePetLocalDataSource()),

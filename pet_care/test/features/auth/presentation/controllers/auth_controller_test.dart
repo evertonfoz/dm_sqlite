@@ -3,59 +3,54 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:pet_care/features/auth/domain/repositories/auth_repository.dart';
 import 'package:pet_care/features/auth/presentation/controllers/auth_controller.dart';
 
-class MockAuthRepository extends Fake implements IAuthRepository {
+class MockAuthRepository extends Fake implements AuthRepository {
   bool signUpCalled = false;
   bool signInCalled = false;
   bool signOutCalled = false;
   bool resetPasswordCalled = false;
-  bool checkSessionCalled = false;
   
   bool shouldThrow = false;
   User? mockUser;
-  bool mockSessionResult = false;
+  Session? mockSession;
 
   String? lastEmail;
   String? lastPassword;
 
   @override
-  Future<void> signUp({required String email, required String password}) async {
+  User? get currentUser => mockUser;
+
+  @override
+  Session? get currentSession => mockSession;
+
+  @override
+  Future<User?> signUp({required String email, required String password}) async {
     signUpCalled = true;
     lastEmail = email;
     lastPassword = password;
     if (shouldThrow) throw Exception('Erro no cadastro');
+    return mockUser;
   }
 
   @override
-  Future<void> signIn({required String email, required String password}) async {
+  Future<User?> signIn({required String email, required String password}) async {
     signInCalled = true;
     lastEmail = email;
     lastPassword = password;
     if (shouldThrow) throw Exception('Erro no login');
+    return mockUser;
   }
 
   @override
-  Future<void> signOut() async {
+  Future signOut() async {
     signOutCalled = true;
     if (shouldThrow) throw Exception('Erro no logout');
   }
 
   @override
-  Future<void> resetPassword({required String email}) async {
+  Future resetPassword({required String email}) async {
     resetPasswordCalled = true;
     lastEmail = email;
     if (shouldThrow) throw Exception('Erro na recuperação');
-  }
-
-  @override
-  User? getCurrentUser() {
-    return mockUser;
-  }
-
-  @override
-  Future<bool> checkSession() async {
-    checkSessionCalled = true;
-    if (shouldThrow) throw Exception('Erro na sessão');
-    return mockSessionResult;
   }
 }
 
@@ -65,7 +60,7 @@ void main() {
 
   setUp(() {
     mockRepository = MockAuthRepository();
-    controller = AuthController(mockRepository);
+    controller = AuthController(repository: mockRepository);
   });
 
   group('AuthController Unit Tests', () {
@@ -86,9 +81,10 @@ void main() {
       });
 
       // Act
-      await controller.signUp('teste@exemplo.com', 'senha123');
+      final result = await controller.signUp(email: 'teste@exemplo.com', password: 'senha123');
 
       // Assert
+      expect(result, isTrue);
       expect(mockRepository.signUpCalled, isTrue);
       expect(controller.currentUser, user);
       expect(controller.errorMessage, isNull);
@@ -100,12 +96,13 @@ void main() {
       mockRepository.shouldThrow = true;
 
       // Act
-      await controller.signUp('teste@exemplo.com', 'senha123');
+      final result = await controller.signUp(email: 'teste@exemplo.com', password: 'senha123');
 
       // Assert
+      expect(result, isFalse);
       expect(mockRepository.signUpCalled, isTrue);
       expect(controller.currentUser, isNull);
-      expect(controller.errorMessage, 'Erro no cadastro');
+      expect(controller.errorMessage, contains('Não foi possível criar a conta.'));
     });
 
     test('signIn deve definir isLoading como true e depois false, e atualizar o currentUser', () async {
@@ -125,9 +122,10 @@ void main() {
       });
 
       // Act
-      await controller.signIn('teste@exemplo.com', 'senha123');
+      final result = await controller.signIn(email: 'teste@exemplo.com', password: 'senha123');
 
       // Assert
+      expect(result, isTrue);
       expect(mockRepository.signInCalled, isTrue);
       expect(controller.currentUser, user);
       expect(controller.errorMessage, isNull);
@@ -139,17 +137,26 @@ void main() {
       mockRepository.shouldThrow = true;
 
       // Act
-      await controller.signIn('teste@exemplo.com', 'senha123');
+      final result = await controller.signIn(email: 'teste@exemplo.com', password: 'senha123');
 
       // Assert
+      expect(result, isFalse);
       expect(mockRepository.signInCalled, isTrue);
       expect(controller.currentUser, isNull);
-      expect(controller.errorMessage, 'Erro no login');
+      expect(controller.errorMessage, contains('Não foi possível entrar.'));
     });
 
     test('signOut deve redefinir o currentUser como nulo', () async {
       // Arrange
-      controller.signUp('teste@exemplo.com', 'senha123'); // define estado inicial logado
+      final user = User(
+        id: '123',
+        appMetadata: {},
+        userMetadata: {},
+        aud: 'aud',
+        createdAt: DateTime.now().toIso8601String(),
+      );
+      mockRepository.mockUser = user;
+      await controller.signUp(email: 'teste@exemplo.com', password: 'senha123'); // define estado inicial logado
 
       // Act
       await controller.signOut();
@@ -162,15 +169,16 @@ void main() {
 
     test('resetPassword deve chamar o repositorio para enviar e-mail de recuperacao', () async {
       // Act
-      await controller.resetPassword('teste@exemplo.com');
+      final result = await controller.resetPassword(email: 'teste@exemplo.com');
 
       // Assert
+      expect(result, isTrue);
       expect(mockRepository.resetPasswordCalled, isTrue);
       expect(mockRepository.lastEmail, 'teste@exemplo.com');
       expect(controller.errorMessage, isNull);
     });
 
-    test('checkSession deve atualizar currentUser se houver sessao ativa', () async {
+    test('loadCurrentUser deve atualizar currentUser se houver usuario logado no repository', () {
       // Arrange
       final user = User(
         id: '123',
@@ -180,26 +188,23 @@ void main() {
         createdAt: DateTime.now().toIso8601String(),
       );
       mockRepository.mockUser = user;
-      mockRepository.mockSessionResult = true;
 
       // Act
-      await controller.checkSession();
+      controller.loadCurrentUser();
 
       // Assert
-      expect(mockRepository.checkSessionCalled, isTrue);
       expect(controller.currentUser, user);
       expect(controller.errorMessage, isNull);
     });
 
-    test('checkSession deve limpar currentUser se nao houver sessao ativa', () async {
+    test('loadCurrentUser deve limpar/definir currentUser como nulo se nao houver usuario no repository', () {
       // Arrange
-      mockRepository.mockSessionResult = false;
+      mockRepository.mockUser = null;
 
       // Act
-      await controller.checkSession();
+      controller.loadCurrentUser();
 
       // Assert
-      expect(mockRepository.checkSessionCalled, isTrue);
       expect(controller.currentUser, isNull);
       expect(controller.errorMessage, isNull);
     });

@@ -77,7 +77,7 @@ void main() {
   setUp(() {
     fakeGoTrueClient = FakeGoTrueClient();
     fakeSupabaseClient = FakeSupabaseClient(fakeGoTrueClient);
-    repository = SupabaseAuthRepository(supabaseClient: fakeSupabaseClient);
+    repository = SupabaseAuthRepository(client: fakeSupabaseClient);
   });
 
   group('SupabaseAuthRepository Unit Tests', () {
@@ -141,15 +141,15 @@ void main() {
       fakeGoTrueClient.mockUser = expectedUser;
 
       // Act
-      final result = repository.getCurrentUser();
+      final result = repository.currentUser;
 
       // Assert
       expect(result, expectedUser);
     });
 
-    test('checkSession deve retornar true se houver sessao ativa', () async {
+    test('currentSession deve retornar true se houver sessao ativa', () {
       // Arrange
-      fakeGoTrueClient.mockSession = Session(
+      final expectedSession = Session(
         accessToken: 'token',
         tokenType: 'bearer',
         user: User(
@@ -160,23 +160,24 @@ void main() {
           createdAt: DateTime.now().toIso8601String(),
         ),
       );
+      fakeGoTrueClient.mockSession = expectedSession;
 
       // Act
-      final result = await repository.checkSession();
+      final result = repository.currentSession;
 
       // Assert
-      expect(result, isTrue);
+      expect(result, expectedSession);
     });
 
-    test('checkSession deve retornar false se nao houver sessao ativa', () async {
+    test('currentSession deve retornar false se nao houver sessao ativa', () {
       // Arrange
       fakeGoTrueClient.mockSession = null;
 
       // Act
-      final result = await repository.checkSession();
+      final result = repository.currentSession;
 
       // Assert
-      expect(result, isFalse);
+      expect(result, isNull);
     });
   });
 }

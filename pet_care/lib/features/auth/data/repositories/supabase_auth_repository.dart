@@ -1,66 +1,50 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:pet_care/features/auth/domain/repositories/auth_repository.dart';
 
-class SupabaseAuthRepository implements IAuthRepository {
-  final SupabaseClient _supabaseClient;
+class SupabaseAuthRepository implements AuthRepository { 
+  final SupabaseClient _client;
+  SupabaseAuthRepository({SupabaseClient? client}) 
+      : _client = client ?? Supabase.instance.client;
 
-  SupabaseAuthRepository({SupabaseClient? supabaseClient})
-      : _supabaseClient = supabaseClient ?? Supabase.instance.client;
+  @override 
+  User? get currentUser => _client.auth.currentUser;
 
-  @override
-  Future<void> signUp({required String email, required String password}) async {
-    try {
-      await _supabaseClient.auth.signUp(
-        email: email,
-        password: password,
-      );
-    } catch (e) {
-      throw Exception('Erro ao cadastrar usuário: $e');
-    }
+  @override 
+  Session? get currentSession => _client.auth.currentSession;
+
+  @override 
+  Future<User?> signUp({ 
+    required String email, 
+    required String password, 
+  }) async { 
+    final response = await _client.auth.signUp( 
+      email: email, 
+      password: password, 
+    );
+    return response.user; 
   }
 
-  @override
-  Future<void> signIn({required String email, required String password}) async {
-    try {
-      await _supabaseClient.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
-    } catch (e) {
-      throw Exception('Erro ao fazer login: $e');
-    }
+  @override 
+  Future<User?> signIn({ 
+    required String email,
+    required String password, 
+  }) async {
+    final response = await _client.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
+    return response.user;
   }
 
-  @override
-  Future<void> signOut() async {
-    try {
-      await _supabaseClient.auth.signOut();
-    } catch (e) {
-      throw Exception('Erro ao sair da conta: $e');
-    }
+  @override 
+  Future signOut() { 
+    return _client.auth.signOut(); 
   }
 
-  @override
-  Future<void> resetPassword({required String email}) async {
-    try {
-      await _supabaseClient.auth.resetPasswordForEmail(email);
-    } catch (e) {
-      throw Exception('Erro ao recuperar senha: $e');
-    }
-  }
-
-  @override
-  User? getCurrentUser() {
-    return _supabaseClient.auth.currentUser;
-  }
-
-  @override
-  Future<bool> checkSession() async {
-    try {
-      final session = _supabaseClient.auth.currentSession;
-      return session != null;
-    } catch (e) {
-      return false;
-    }
-  }
+  @override 
+  Future resetPassword({ 
+    required String email, 
+  }) { 
+    return _client.auth.resetPasswordForEmail(email); 
+  } 
 }
