@@ -106,6 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
                         hintText: 'Digite seu e-mail',
                         fillColor: Colors.white,
@@ -144,6 +145,7 @@ class _LoginPageState extends State<LoginPage> {
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
+                      textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
                         hintText: 'Digite sua senha',
                         fillColor: Colors.white,

@@ -111,6 +111,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
                         hintText: 'Digite seu e-mail',
                         fillColor: Colors.white,
@@ -149,6 +150,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
+                      textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
                         hintText: 'Digite sua senha',
                         fillColor: Colors.white,
@@ -198,6 +200,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextFormField(
                       controller: _confirmPasswordController,
                       obscureText: _obscureConfirmPassword,
+                      textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
                         hintText: 'Confirme sua senha',
                         fillColor: Colors.white,
