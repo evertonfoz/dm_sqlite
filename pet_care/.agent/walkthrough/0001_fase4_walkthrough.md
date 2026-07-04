@@ -41,3 +41,15 @@ flutter test test/features/auth/presentation/pages/auth_gate_test.dart
 3.  **Fluxo de Login**: Sem sessão ativa, o app deve abrir na `OnboardingPage`. Navegue para login, insira credenciais válidas e confirme. O roteamento imediato deve te levar à `TutorListPage`.
 4.  **Fluxo de Logout**: Pressione o botão de logout na `AppBar` ou no menu lateral (`AppDrawer`). Confirme a ação no diálogo e verifique se é redirecionado automaticamente à `OnboardingPage`.
 5.  **Persistência**: Feche e reabra o aplicativo logado. Verifique se ele carrega diretamente a lista de tutores sem passar pelas telas públicas.
+
+---
+
+## Observações Importantes: Confirmação de E-mail e Redirecionamento
+
+Se a confirmação de e-mail estiver ativada no seu console do Supabase:
+
+1. **Erro de Redirecionamento no Navegador (`localhost:3000`)**:
+   Ao clicar no link recebido por e-mail, o navegador abrirá o endpoint do Supabase, confirmará o e-mail no banco de dados e tentará redirecionar para a URL padrão do projeto (`http://localhost:3000`). Como o app é mobile e não há um servidor web ouvindo na porta 3000 local, o navegador exibirá uma mensagem de erro de conexão. **A conta, contudo, é ativada com sucesso no Supabase**.
+
+2. **Por que o login não é automático?**:
+   A ativação ocorre em uma aplicação externa (o navegador do celular/computador), por isso o app Flutter (rodando de forma isolada) não sabe instantaneamente que o e-mail foi confirmado. Para que o login ocorresse automaticamente, seria necessário implementar **Deep Linking** (fazendo com que a URL de redirect acione o app através de um esquema personalizado, ex: `petcare://callback`). No fluxo atual simplificado, o usuário deve retornar manualmente ao app, navegar até a tela de entrada (`LoginPage`) e fazer o login com seu e-mail e senha.
