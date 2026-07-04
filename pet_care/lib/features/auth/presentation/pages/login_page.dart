@@ -21,10 +21,15 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -105,8 +110,12 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _emailController,
+                      focusNode: _emailFocusNode,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).requestFocus(_passwordFocusNode);
+                      },
                       decoration: InputDecoration(
                         hintText: 'Digite seu e-mail',
                         fillColor: Colors.white,
@@ -144,8 +153,12 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _passwordController,
+                      focusNode: _passwordFocusNode,
                       obscureText: _obscurePassword,
-                      textInputAction: TextInputAction.next,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) {
+                        _handleLogin();
+                      },
                       decoration: InputDecoration(
                         hintText: 'Digite sua senha',
                         fillColor: Colors.white,

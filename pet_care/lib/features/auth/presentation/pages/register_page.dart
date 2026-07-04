@@ -21,11 +21,18 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  final _confirmPasswordFocusNode = FocusNode();
+
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _confirmPasswordFocusNode.dispose();
     super.dispose();
   }
 
@@ -110,8 +117,12 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _emailController,
+                      focusNode: _emailFocusNode,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).requestFocus(_passwordFocusNode);
+                      },
                       decoration: InputDecoration(
                         hintText: 'Digite seu e-mail',
                         fillColor: Colors.white,
@@ -149,8 +160,12 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _passwordController,
+                      focusNode: _passwordFocusNode,
                       obscureText: _obscurePassword,
                       textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).requestFocus(_confirmPasswordFocusNode);
+                      },
                       decoration: InputDecoration(
                         hintText: 'Digite sua senha',
                         fillColor: Colors.white,
@@ -199,8 +214,12 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _confirmPasswordController,
+                      focusNode: _confirmPasswordFocusNode,
                       obscureText: _obscureConfirmPassword,
-                      textInputAction: TextInputAction.next,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) {
+                        _handleRegister();
+                      },
                       decoration: InputDecoration(
                         hintText: 'Confirme sua senha',
                         fillColor: Colors.white,
