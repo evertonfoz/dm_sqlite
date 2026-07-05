@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:pet_care/features/auth/presentation/controllers/auth_controller.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+  final AuthController? authController;
+
+  const RegisterPage({super.key, this.authController});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -10,7 +12,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
-  final _authController = AuthController();
+  late final AuthController _authController;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -19,11 +21,19 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _obscureConfirmPassword = true;
 
   @override
+  void initState() {
+    super.initState();
+    _authController = widget.authController ?? AuthController();
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _authController.dispose();
+    if (widget.authController == null) {
+      _authController.dispose();
+    }
     super.dispose();
   }
 
