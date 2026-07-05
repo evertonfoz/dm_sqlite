@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:pet_care/features/auth/domain/repositories/auth_repository.dart';
 import 'package:pet_care/features/auth/presentation/controllers/auth_controller.dart';
@@ -59,6 +60,7 @@ void main() {
   late AuthController controller;
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
     mockRepository = MockAuthRepository();
     controller = AuthController(repository: mockRepository);
   });

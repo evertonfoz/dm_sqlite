@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:pet_care/features/auth/data/repositories/supabase_auth_repository.dart';
 import 'package:pet_care/features/auth/domain/repositories/auth_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthController extends ChangeNotifier {
@@ -88,6 +89,12 @@ class AuthController extends ChangeNotifier {
     try {
       await _repository.signOut();
       _currentUser = null;
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('hasSeenOnboarding');
+      } catch (e) {
+        debugPrint('Erro ao resetar onboarding no logout: $e');
+      }
     } catch (error) {
       debugPrint('Erro ao sair da conta: $error');
       _errorMessage = 'Não foi possível sair da conta. Tente novamente.';
