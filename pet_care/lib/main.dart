@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:pet_care/features/auth/presentation/pages/auth_gate.dart';
+import 'package:pet_care/features/auth/presentation/pages/splash_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/supabase/supabase_config.dart';
@@ -73,7 +73,7 @@ class MainApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const AuthGate(),
+      home: const SplashScreen(),
     );
   }
 }

@@ -10,16 +10,44 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_dotenv: ^6.0.1
+  flutter_native_splash: ^2.4.7
   path: ^1.9.1
   sqflite: ^2.4.2+1
   supabase_flutter: ^2.15.0
+  shared_preferences: ^2.3.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.4
   flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
   assets:
     - .env
+    - assets/images/app_icon/
+    - assets/images/launch_screen/
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/app_icon/light_mode.png"
+  image_path_ios: "assets/images/app_icon/light_mode.png"
+  image_path_ios_dark_transparent: "assets/images/app_icon/dark_mode.png"
+  adaptive_icon_background: "#F8FAFC"
+  adaptive_icon_background_dark: "#0F766E"
+  adaptive_icon_foreground: "assets/images/app_icon/light_mode.png"
+  adaptive_icon_foreground_dark: "assets/images/app_icon/dark_mode.png"
+
+flutter_native_splash:
+  color: "#F8FAFC"
+  image: "assets/images/launch_screen/light_mode.png"
+  color_dark: "#0F766E"
+  image_dark: "assets/images/launch_screen/dark_mode.png"
+  
+  android_12:
+    image: "assets/images/launch_screen/light_mode.png"
+    color: "#F8FAFC"
+    image_dark: "assets/images/launch_screen/dark_mode.png"
+    color_dark: "#0F766E"
