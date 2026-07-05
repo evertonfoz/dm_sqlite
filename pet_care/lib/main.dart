@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:pet_care/features/pet/presentation/pages/pet_list_page.dart';
-import 'package:pet_care/features/tutor/presentation/pages/tutor_list_page.dart';
+import 'package:pet_care/features/auth/presentation/pages/auth_gate.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/supabase/supabase_config.dart';
@@ -17,12 +16,6 @@ void main() async {
   );
 
   debugPrint('Supabase inicializado com sucesso.');
-
-  final response = await Supabase.instance.client
-      .from('tutors')
-      .select()
-      .limit(1);
-  debugPrint('Teste:  $response');
 
   runApp(const MainApp());
 }
@@ -50,8 +43,37 @@ class MainApp extends StatelessWidget {
         ),
         fontFamily:
             'Inter', // Utiliza a fonte padrão com fallback do sistema operacional
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF0F766E),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: const Color(0xFF0F766E),
+            side: const BorderSide(
+              color: Color(0xFF0F766E),
+              width: 1.4,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       ),
-      home: const TutorListPage(),
+      home: const AuthGate(),
     );
   }
 }

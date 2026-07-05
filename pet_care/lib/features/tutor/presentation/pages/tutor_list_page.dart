@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pet_care/core/presentation/widgets/app_drawer.dart';
+import 'package:pet_care/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:pet_care/features/auth/data/repositories/supabase_auth_repository.dart';
 import 'package:pet_care/features/pet/data/datasources/pet_local_datasource.dart';
 import 'package:pet_care/features/tutor/data/datasources/tutor_local_datasource.dart';
 import 'package:pet_care/features/tutor/data/datasources/tutor_remote_datasource.dart';
@@ -13,26 +15,31 @@ import '../widgets/list/empty_tutors.dart';
 import '../widgets/list/tutor_dismissible_item.dart';
 
 class TutorListPage extends StatefulWidget {
-  const TutorListPage({super.key});
+  final TutorController? controller;
+  final AuthController? authController;
+  const TutorListPage({super.key, this.controller, this.authController});
 
   @override
   State<TutorListPage> createState() => _TutorListPageState();
 }
 
 class _TutorListPageState extends State<TutorListPage> {
-  final TutorController _controller = TutorController(
-    TutorRepositoryImpl(SupabaseTutorRemoteDataSource()),
-    SqlitePetRepository(SqflitePetLocalDataSource()),
-    SyncTutorRepositoryImpl(
-      remoteDataSource: SupabaseTutorRemoteDataSource(),
-      localDataSource: SqfliteTutorLocalDataSourceImpl(),
-    ),
-  );
+  late final TutorController _controller;
   late final ScrollController _scrollController;
+  late final AuthController _authController;
 
   @override
   void initState() {
     super.initState();
+    _authController = widget.authController ?? AuthController();
+    _controller = widget.controller ?? TutorController(
+      TutorRepositoryImpl(SupabaseTutorRemoteDataSource()),
+      SqlitePetRepository(SqflitePetLocalDataSource()),
+      SyncTutorRepositoryImpl(
+        remoteDataSource: SupabaseTutorRemoteDataSource(),
+        localDataSource: SqfliteTutorLocalDataSourceImpl(),
+      ),
+    );
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
     _controller.loadFirstPage();
@@ -54,8 +61,13 @@ class _TutorListPageState extends State<TutorListPage> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    if (widget.controller == null) {
+      _controller.dispose();
+    }
     _scrollController.dispose();
+    if (widget.authController == null) {
+      _authController.dispose();
+    }
     super.dispose();
   }
 
@@ -123,10 +135,40 @@ class _TutorListPageState extends State<TutorListPage> {
             icon: const Icon(Icons.refresh_rounded, color: Color(0xFF0F766E)),
             tooltip: 'Atualizar Lista',
           ),
+          IconButton(
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Sair'),
+                  content: const Text('Deseja realmente sair da sua conta?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text(
+                        'Sair',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirm == true) {
+                await _authController.signOut();
+              }
+            },
+            icon: const Icon(Icons.logout_rounded, color: Color(0xFF0F766E)),
+            tooltip: 'Sair da Conta',
+          ),
           const SizedBox(width: 8),
         ],
       ),
-      drawer: const AppDrawer(activeRoute: 'tutors'),
+      drawer: AppDrawer(activeRoute: 'tutors', authController: _authController),
       body: ListenableBuilder(
         listenable: _controller,
         builder: (context, child) {

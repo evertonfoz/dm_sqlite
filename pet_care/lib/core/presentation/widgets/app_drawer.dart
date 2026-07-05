@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:pet_care/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:pet_care/features/auth/data/repositories/supabase_auth_repository.dart';
 import 'package:pet_care/features/pet/presentation/pages/pet_list_page.dart';
+import 'package:pet_care/features/tutor/presentation/pages/tutor_list_page.dart';
 
 class AppDrawer extends StatelessWidget {
   final String activeRoute;
+  final AuthController? authController;
 
-  const AppDrawer({super.key, required this.activeRoute});
+  const AppDrawer({
+    super.key,
+    required this.activeRoute,
+    this.authController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +48,43 @@ class AppDrawer extends StatelessWidget {
                 Navigator.of(context).pop();
                 return;
               }
-              // Navigator.of(context).pushReplacement(
-              //   MaterialPageRoute(builder: (context) => const TutorListPage()),
-              // );
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const TutorListPage()),
+              );
+            },
+          ),
+          _buildMenuItem(
+            context,
+            icon: Icons.logout_rounded,
+            title: 'Sair',
+            isActive: false,
+            onTap: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Sair'),
+                  content: const Text('Deseja realmente sair do aplicativo?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text(
+                        'Sair',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirm == true && context.mounted) {
+                Navigator.of(context).pop(); // Close drawer
+                final controller = authController ?? AuthController();
+                await controller.signOut();
+              }
             },
           ),
           const Spacer(),
