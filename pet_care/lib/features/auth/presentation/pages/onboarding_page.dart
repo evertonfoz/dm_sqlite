@@ -4,11 +4,11 @@ import 'login_page.dart';
 import 'register_page.dart';
 
 class OnboardingPage extends StatelessWidget {
-  final AuthController authController;
+  final AuthController? authController;
 
   const OnboardingPage({
     super.key,
-    required this.authController,
+    this.authController,
   });
 
   @override

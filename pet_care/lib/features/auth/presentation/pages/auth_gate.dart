@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:pet_care/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:pet_care/features/auth/data/repositories/supabase_auth_repository.dart';
-import 'package:pet_care/features/auth/presentation/pages/onboarding_page.dart';
-import 'package:pet_care/features/tutor/presentation/pages/tutor_list_page.dart';
+import 'package:pet_care/features/auth/presentation/pages/authenticated_area.dart';
+import 'package:pet_care/features/auth/presentation/pages/public_area.dart';
 import 'package:pet_care/features/tutor/presentation/controllers/tutor_controller.dart';
 
 class AuthGate extends StatefulWidget {
@@ -43,8 +43,8 @@ class _AuthGateState extends State<AuthGate> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           final currentSession = _client.auth.currentSession;
           if (currentSession != null) {
-            return TutorListPage(
-              controller: widget.tutorController,
+            return AuthenticatedArea(
+              tutorController: widget.tutorController,
               authController: _authController,
             );
           }
@@ -57,14 +57,14 @@ class _AuthGateState extends State<AuthGate> {
           );
         }
 
-        final session = snapshot.data?.session;
+        final session = snapshot.data?.session ?? _client.auth.currentSession;
         if (session != null) {
-          return TutorListPage(
-            controller: widget.tutorController,
+          return AuthenticatedArea(
+            tutorController: widget.tutorController,
             authController: _authController,
           );
         } else {
-          return OnboardingPage(authController: _authController);
+          return PublicArea(authController: _authController);
         }
       },
     );

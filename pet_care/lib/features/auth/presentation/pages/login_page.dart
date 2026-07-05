@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pet_care/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:pet_care/features/auth/presentation/pages/forgot_password_page.dart';
-import 'package:pet_care/features/tutor/presentation/pages/tutor_list_page.dart';
 
 class LoginPage extends StatefulWidget {
   final AuthController? authController;
@@ -226,13 +225,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
     if (success) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) => TutorListPage(authController: _authController),
-        ),
-        (route) => false,
-      );
+      Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }
 
