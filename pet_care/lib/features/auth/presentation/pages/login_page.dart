@@ -255,7 +255,7 @@ class _LoginPageState extends State<LoginPage> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => RegisterPage(authController: widget.authController),
+                                builder: (context) => const RegisterPage(),
                               ),
                             );
                           },

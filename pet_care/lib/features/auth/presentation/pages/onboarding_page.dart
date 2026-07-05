@@ -97,7 +97,7 @@ class OnboardingPage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => RegisterPage(authController: authController),
+              builder: (context) => const RegisterPage(),
             ),
           );
         },
