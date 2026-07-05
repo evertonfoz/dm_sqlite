@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pet_care/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:pet_care/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:pet_care/features/tutor/presentation/pages/tutor_list_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -147,8 +148,12 @@ class _LoginPageState extends State<LoginPage> {
         onPressed: _authController.isLoading
             ? null
             : () {
-                // Navegação para recuperação de senha será implementada
-                // depois.
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ForgotPasswordPage(),
+                  ),
+                );
               },
         child: const Text('Esqueci minha senha'),
       ),

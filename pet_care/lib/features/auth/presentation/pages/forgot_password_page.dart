@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:pet_care/features/auth/presentation/controllers/auth_controller.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
-  final AuthController authController;
+  final AuthController? authController;
 
   const ForgotPasswordPage({
     super.key,
-    required this.authController,
+    this.authController,
   });
 
   @override
@@ -15,157 +15,206 @@ class ForgotPasswordPage extends StatefulWidget {
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _formKey = GlobalKey<FormState>();
+  late final AuthController _authController;
   final _emailController = TextEditingController();
+  bool _success = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _authController = widget.authController ?? AuthController();
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
-    super.dispose();
-  }
-
-  void _handleResetPassword() async {
-    FocusScope.of(context).unfocus();
-    if (_formKey.currentState!.validate()) {
-      await widget.authController.resetPassword(
-        email: _emailController.text.trim(),
-      );
-
-      if (!mounted) return;
-
-      if (widget.authController.errorMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(widget.authController.errorMessage!),
-            backgroundColor: Colors.red,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('E-mail de recuperação enviado! Verifique sua caixa de entrada.'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 5),
-          ),
-        );
-        Navigator.pop(context); // Retorna à tela de login
-      }
+    if (widget.authController == null) {
+      _authController.dispose();
     }
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-          onPressed: () => Navigator.pop(context),
-        ),
+        title: const Text('Recuperar senha'),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: ListenableBuilder(
-            listenable: widget.authController,
-            builder: (context, _) {
-              return Form(
+        child: AnimatedBuilder(
+          animation: _authController,
+          builder: (context, _) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Form(
                 key: _formKey,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    _buildHeader(),
+                    const SizedBox(height: 32),
+                    _buildEmailField(),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Recuperar Senha',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF0F766E),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Insira o e-mail cadastrado e enviaremos as instruções para a redefinição da sua senha.',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF64748B),
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    // Input de E-mail
-                    const Text(
-                      'E-mail',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        hintText: 'Digite seu e-mail',
-                        fillColor: Colors.white,
-                        filled: true,
-                        prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFF64748B)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF0F766E), width: 1.5),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor, insira seu e-mail';
-                        }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                          return 'Por favor, insira um e-mail válido';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 32),
-                    // Botão Enviar
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: widget.authController.isLoading ? null : _handleResetPassword,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0F766E),
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor: const Color(0xFF0F766E).withOpacity(0.6),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: widget.authController.isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text(
-                                'Enviar Instruções',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                      ),
-                    ),
+                    _buildFeedbackMessage(),
+                    const SizedBox(height: 24),
+                    _buildSendButton(),
+                    const SizedBox(height: 16),
+                    _buildBackToLoginButton(),
                   ],
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
+  }
+
+  Widget _buildHeader() {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Esqueceu sua senha?',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1E293B),
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Informe o e-mail cadastrado para receber as '
+          'instruções de recuperação de senha.',
+          style: TextStyle(
+            fontSize: 16,
+            height: 1.4,
+            color: Color(0xFF64748B),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmailField() {
+    return TextFormField(
+      controller: _emailController,
+      keyboardType: TextInputType.emailAddress,
+      textInputAction: TextInputAction.done,
+      decoration: const InputDecoration(
+        labelText: 'E-mail',
+        prefixIcon: Icon(Icons.email_outlined),
+        border: OutlineInputBorder(),
+      ),
+      validator: _validateEmail,
+      onFieldSubmitted: (_) => _submit(),
+    );
+  }
+
+  Widget _buildFeedbackMessage() {
+    if (_authController.hasError) {
+      return _buildMessageBox(
+        message: _authController.errorMessage!,
+        color: Colors.red,
+        icon: Icons.error_outline,
+      );
+    }
+    if (_success) {
+      return _buildMessageBox(
+        message: 'Se o e-mail estiver cadastrado, você '
+            'receberá as instruções de recuperação.',
+        color: const Color(0xFF0F766E),
+        icon: Icons.check_circle_outline,
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildMessageBox({
+    required String message,
+    required Color color,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                color: color,
+                fontSize: 14,
+                height: 1.3,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSendButton() {
+    return SizedBox(
+      height: 52,
+      child: ElevatedButton(
+        onPressed: _authController.isLoading ? null : _submit,
+        child: _authController.isLoading
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Text('Enviar recuperação'),
+      ),
+    );
+  }
+
+  Widget _buildBackToLoginButton() {
+    return TextButton(
+      onPressed: _authController.isLoading
+          ? null
+          : () {
+              Navigator.pop(context);
+            },
+      child: const Text('Voltar ao login'),
+    );
+  }
+
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+    final isValid = _formKey.currentState?.validate() ?? false;
+    if (!isValid) return;
+    setState(() {
+      _success = false;
+    });
+    final success = await _authController.resetPassword(
+      email: _emailController.text,
+    );
+    if (!mounted) return;
+    if (success) {
+      setState(() {
+        _success = true;
+      });
+    }
+  }
+
+  String? _validateEmail(String? value) {
+    final email = value?.trim() ?? '';
+    if (email.isEmpty) return 'Informe seu e-mail.';
+    if (!email.contains('@') || !email.contains('.')) {
+      return 'Informe um e-mail válido.';
+    }
+    return null;
   }
 }

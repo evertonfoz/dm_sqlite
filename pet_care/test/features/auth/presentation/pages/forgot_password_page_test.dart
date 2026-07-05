@@ -35,37 +35,38 @@ void main() {
   testWidgets('Deve renderizar os componentes da tela de recuperar senha corretamente', (WidgetTester tester) async {
     await tester.pumpWidget(createWidgetUnderTest());
 
-    expect(find.text('Recuperar Senha'), findsOneWidget);
-    expect(find.text('Insira o e-mail cadastrado e enviaremos as instruções para a redefinição da sua senha.'), findsOneWidget);
+    expect(find.text('Recuperar senha'), findsOneWidget);
+    expect(find.text('Esqueceu sua senha?'), findsOneWidget);
+    expect(find.text('Informe o e-mail cadastrado para receber as instruções de recuperação de senha.'), findsOneWidget);
     expect(find.text('E-mail'), findsOneWidget);
-    expect(find.text('Enviar Instruções'), findsOneWidget);
+    expect(find.text('Enviar recuperação'), findsOneWidget);
   });
 
   testWidgets('Deve mostrar erro de validação ao enviar e-mail vazio', (WidgetTester tester) async {
     await tester.pumpWidget(createWidgetUnderTest());
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Enviar Instruções'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Enviar recuperação'));
     await tester.pump();
 
-    expect(find.text('Por favor, insira seu e-mail'), findsOneWidget);
+    expect(find.text('Informe seu e-mail.'), findsOneWidget);
   });
 
   testWidgets('Deve mostrar erro ao informar e-mail inválido', (WidgetTester tester) async {
     await tester.pumpWidget(createWidgetUnderTest());
 
-    await tester.enterText(find.widgetWithText(TextFormField, 'Digite seu e-mail'), 'emailinvalido');
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Enviar Instruções'));
+    await tester.enterText(find.byType(TextFormField), 'emailinvalido');
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Enviar recuperação'));
     await tester.pump();
 
-    expect(find.text('Por favor, insira um e-mail válido'), findsOneWidget);
+    expect(find.text('Informe um e-mail válido.'), findsOneWidget);
   });
 
   testWidgets('Deve chamar resetPassword no controller ao enviar formulário válido', (WidgetTester tester) async {
     await tester.pumpWidget(createWidgetUnderTest());
 
-    await tester.enterText(find.widgetWithText(TextFormField, 'Digite seu e-mail'), 'teste@exemplo.com');
+    await tester.enterText(find.byType(TextFormField), 'teste@exemplo.com');
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Enviar Instruções'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Enviar recuperação'));
     await tester.pumpAndSettle();
 
     expect(mockRepository.resetPasswordCalled, isTrue);
