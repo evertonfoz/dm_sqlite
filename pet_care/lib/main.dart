@@ -28,6 +28,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       title: 'Pet Care',
       debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.system,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
@@ -61,6 +62,51 @@ class MainApp extends StatelessWidget {
             foregroundColor: const Color(0xFF0F766E),
             side: const BorderSide(
               color: Color(0xFF0F766E),
+              width: 1.4,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF0F766E),
+          brightness: Brightness.dark,
+          primary: const Color(0xFF2DD4BF),
+          secondary: const Color(0xFFF97316),
+          surface: const Color(0xFF0F172A),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF0F172A),
+          foregroundColor: Color(0xFFF8FAFC),
+          elevation: 0,
+        ),
+        fontFamily: 'Inter',
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF2DD4BF),
+            foregroundColor: const Color(0xFF0F172A),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: const Color(0xFF2DD4BF),
+            side: const BorderSide(
+              color: Color(0xFF2DD4BF),
               width: 1.4,
             ),
             shape: RoundedRectangleBorder(

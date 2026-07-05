@@ -2,8 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_gate.dart';
 
-/// Tela temporária de Onboarding/Apresentação do Pet Care.
-/// Esta tela será substituída por um onboarding completo em material posterior.
+/// Modelo para armazenar as informações de cada slide do onboarding.
+class OnboardingItem {
+  final String lightImagePath;
+  final String darkImagePath;
+  final String title;
+  final String description;
+
+  const OnboardingItem({
+    required this.lightImagePath,
+    required this.darkImagePath,
+    required this.title,
+    required this.description,
+  });
+}
+
+/// Tela de Onboarding/Apresentação do Pet Care com 3 páginas e suporte a Light/Dark Mode.
 class IntroPage extends StatefulWidget {
   const IntroPage({super.key});
 
@@ -15,19 +29,26 @@ class _IntroPageState extends State<IntroPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<Map<String, String>> _onboardingData = [
-    {
-      'title': 'Bem-vindo ao Pet Care',
-      'description': 'A melhor plataforma para organizar os dados e atendimentos dos seus pets e tutores de forma prática.',
-    },
-    {
-      'title': 'Tudo sob Controle',
-      'description': 'Monitore vacinas, consultas e histórico de atendimentos de onde estiver, com sincronização em tempo real na nuvem.',
-    },
-    {
-      'title': 'Acesso Seguro',
-      'description': 'Garantia de segurança para as informações mais importantes, integrando tudo de maneira simples e robusta.',
-    },
+  // Itens do onboarding com os nomes reais de arquivos encontrados nos assets
+  static const List<OnboardingItem> _onboardingItems = [
+    OnboardingItem(
+      lightImagePath: 'assets/images/on_boarding/onboarding_1_light_mode.png.png',
+      darkImagePath: 'assets/images/on_boarding/onboarding_1_dark_mode.png',
+      title: 'Organize os dados dos pets',
+      description: 'Cadastre e consulte informações importantes dos animais de estimação em um só lugar.',
+    ),
+    OnboardingItem(
+      lightImagePath: 'assets/images/on_boarding/onboarding_2_light_mode.png.png',
+      darkImagePath: 'assets/images/on_boarding/onboarding_2_dark_mode.png.png',
+      title: 'Gerencie tutores',
+      description: 'Mantenha os dados dos tutores vinculados aos seus respectivos pets de forma simples.',
+    ),
+    OnboardingItem(
+      lightImagePath: 'assets/images/on_boarding/onboarding_3_light_mode.png.png',
+      darkImagePath: 'assets/images/on_boarding/onboarding_3_dark_mode.png.png',
+      title: 'Acesse com segurança',
+      description: 'Utilize uma estrutura preparada para autenticação, organização e integração com a nuvem.',
+    ),
   ];
 
   Future<void> _completeOnboarding() async {
@@ -52,28 +73,43 @@ class _IntroPageState extends State<IntroPage> {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
+
+    // Cores conforme requisito
+    final backgroundColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
+    final primaryColor = isDark ? const Color(0xFF2DD4BF) : const Color(0xFF008577);
+    final mainTextColor = isDark ? const Color(0xFFF8FAFC) : const Color(0xFF17223B);
+    final secondaryTextColor = isDark ? const Color(0xFFCBD5E1) : const Color(0xFF64748B);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           child: Column(
             children: [
-              // Botão Pular no topo direito
-              Align(
-                alignment: Alignment.topRight,
-                child: TextButton(
-                  onPressed: _completeOnboarding,
-                  child: const Text(
-                    'Pular',
-                    style: TextStyle(
-                      color: Color(0xFF0F766E),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+              // Botão Pular no topo direito (visível apenas se não for o último slide)
+              SizedBox(
+                height: 48,
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: _currentPage < _onboardingItems.length - 1
+                      ? TextButton(
+                          onPressed: _completeOnboarding,
+                          child: Text(
+                            'Pular',
+                            style: TextStyle(
+                              color: primaryColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        )
+                      : null,
                 ),
               ),
+              // Carrossel com imagem, título e descrição
               Expanded(
                 child: PageView.builder(
                   controller: _pageController,
@@ -82,55 +118,58 @@ class _IntroPageState extends State<IntroPage> {
                       _currentPage = index;
                     });
                   },
-                  itemCount: _onboardingData.length,
+                  itemCount: _onboardingItems.length,
                   itemBuilder: (context, index) {
+                    final item = _onboardingItems[index];
+                    final imagePath = isDark ? item.darkImagePath : item.lightImagePath;
+
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Container da logo/marca
-                        Container(
-                          width: 140,
-                          height: 140,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF0F766E).withValues(alpha: 0.12),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.pets,
-                            size: 70,
-                            color: Color(0xFF0F766E),
+                        // Imagem centralizada
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Image.asset(
+                              imagePath,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 48),
+                        const SizedBox(height: 32),
+                        // Título
                         Text(
-                          _onboardingData[index]['title']!,
+                          item.title,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E293B),
+                            color: mainTextColor,
                           ),
                         ),
                         const SizedBox(height: 16),
+                        // Descrição
                         Text(
-                          _onboardingData[index]['description']!,
+                          item.description,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             height: 1.5,
-                            color: Color(0xFF64748B),
+                            color: secondaryTextColor,
                           ),
                         ),
+                        const SizedBox(height: 16),
                       ],
                     );
                   },
                 ),
               ),
+              const SizedBox(height: 24),
               // Indicadores de página
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(
-                  _onboardingData.length,
+                  _onboardingItems.length,
                   (index) => AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -138,8 +177,8 @@ class _IntroPageState extends State<IntroPage> {
                     width: _currentPage == index ? 24 : 8,
                     decoration: BoxDecoration(
                       color: _currentPage == index
-                          ? const Color(0xFF0F766E)
-                          : const Color(0xFFCBD5E1),
+                          ? primaryColor
+                          : (isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1)),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -151,8 +190,16 @@ class _IntroPageState extends State<IntroPage> {
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
                   onPressed: () {
-                    if (_currentPage < _onboardingData.length - 1) {
+                    if (_currentPage < _onboardingItems.length - 1) {
                       _pageController.nextPage(
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeIn,
@@ -162,9 +209,11 @@ class _IntroPageState extends State<IntroPage> {
                     }
                   },
                   child: Text(
-                    _currentPage == _onboardingData.length - 1
-                        ? 'Começar'
-                        : 'Avançar',
+                    _currentPage == _onboardingItems.length - 1 ? 'Começar' : 'Próximo',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
